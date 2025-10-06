@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Idle City - Phaser Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <style>
+    body { margin: 0; background: #222; }
+    canvas { display: block; margin: auto; }
+  </style>
+</head>
+<body>
+<script>
+class IdleScene extends Phaser.Scene {
+  constructor() {
+    super("IdleScene");
+  }
+
+  preload() {
+    // Colores básicos en vez de sprites reales
+    this.graphics = this.add.graphics();
+  }
+
+  create() {
+    this.points = 0;
+    this.buildings = [];
+
+    // Texto de puntos
+    this.pointsText = this.add.text(10, 10, "Puntos: 0", {
+      font: "20px Arial",
+      fill: "#ffffff"
+    });
+
+    // Zona de construcción (un rectángulo)
+    this.zone = this.add.rectangle(400, 300, 300, 300, 0x4caf50);
+    this.zone.setInteractive();
+
+    this.zone.on("pointerdown", () => {
+      this.addBuilding();
+    });
+
+    // Generar puntos cada segundo
+    this.time.addEvent({
+      delay: 1000,
+      loop: true,
+      callback: () => {
+        this.buildings.forEach(() => {
+          this.points += 1; // cada edificio da +1 por segundo
+        });
+        this.updatePoints();
+      }
+    });
+  }
+
+  addBuilding() {
+    // Posición aleatoria dentro de la zona
+    const x = Phaser.Math.Between(250, 550);
+    const y = Phaser.Math.Between(150, 450);
+
+    // Dibujar un rectángulo como "edificio"
+    const building = this.add.rectangle(x, y, 30, 50, 0x2196f3);
+    this.buildings.push(building);
+
+    // Bonus inmediato al construir
+    this.points += 5;
+    this.updatePoints();
+  }
+
+  updatePoints() {
+    this.pointsText.setText("Puntos: " + this.points);
+  }
+}
+
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  backgroundColor: "#87ceeb",
+  scene: IdleScene
+};
+
+new Phaser.Game(config);
+</script>
+</body>
+</html>
