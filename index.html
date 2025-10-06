@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Idle Farm</title>
+  <style>
+    body {
+      margin: 0;
+      background: #2d2d2d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background: #6ab04c;
+      border: 4px solid #333;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="farm" width="300" height="300"></canvas>
+
+  <script>
+    const canvas = document.getElementById("farm");
+    const ctx = canvas.getContext("2d");
+
+    // Estados posibles: vacío, semilla, creciendo, listo
+    let parcela = {
+      estado: "vacío",
+      tiempoPlantado: 0
+    };
+
+    let puntos = 0;
+
+    function dibujar() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Fondo parcela
+      ctx.fillStyle = "#7ed957";
+      ctx.fillRect(50, 50, 200, 200);
+
+      // Según estado, dibujar algo distinto
+      if (parcela.estado === "vacío") {
+        ctx.fillStyle = "#a0522d";
+        ctx.fillRect(100, 100, 100, 100);
+      } else if (parcela.estado === "semilla") {
+        ctx.fillStyle = "#3e2723";
+        ctx.fillRect(100, 100, 100, 100);
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(150, 150, 5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (parcela.estado === "creciendo") {
+        ctx.fillStyle = "#3e2723";
+        ctx.fillRect(100, 100, 100, 100);
+        ctx.fillStyle = "#2ecc71";
+        ctx.fillRect(140, 120, 20, 60);
+      } else if (parcela.estado === "listo") {
+        ctx.fillStyle = "#3e2723";
+        ctx.fillRect(100, 100, 100, 100);
+        ctx.fillStyle = "#27ae60";
+        ctx.beginPath();
+        ctx.arc(150, 150, 30, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Mostrar puntos
+      ctx.fillStyle = "#fff";
+      ctx.font = "20px Arial";
+      ctx.fillText("Puntos: " + puntos, 10, 25);
+    }
+
+    function actualizar() {
+      if (parcela.estado === "semilla") {
+        if (Date.now() - parcela.tiempoPlantado > 3000) {
+          parcela.estado = "creciendo";
+        }
+      } else if (parcela.estado === "creciendo") {
+        if (Date.now() - parcela.tiempoPlantado > 6000) {
+          parcela.estado = "listo";
+        }
+      }
+    }
+
+    canvas.addEventListener("click", (e) => {
+      const x = e.offsetX;
+      const y = e.offsetY;
+
+      // Si clic dentro de la parcela
+      if (x > 100 && x < 200 && y > 100 && y < 200) {
+        if (parcela.estado === "vacío") {
+          parcela.estado = "semilla";
+          parcela.tiempoPlantado = Date.now();
+        } else if (parcela.estado === "listo") {
+          puntos += 10;
+          parcela.estado = "vacío";
+        }
+      }
+    });
+
+    function loop() {
+      actualizar();
+      dibujar();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
